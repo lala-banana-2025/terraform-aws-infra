@@ -1,0 +1,21 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - curl -fsSL https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip -o tf.zip
+      - unzip -o tf.zip -d /usr/local/bin && rm tf.zip
+  pre_build:
+    commands:
+      - cd terraform
+      - >
+        terraform init
+        -backend-config="bucket=${TF_STATE_BUCKET}"
+        -backend-config="key=${TF_STATE_KEY}"
+        -backend-config="region=${AWS_REGION}"
+        -backend-config="dynamodb_table=${TF_STATE_DDB_TABLE}"
+  build:
+    commands:
+      - terraform validate
+      - terraform plan -var "aws_region=${AWS_REGION}" -out=plan.out
+      - terraform apply -auto-approve plan.out
+
