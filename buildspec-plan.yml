@@ -1,0 +1,42 @@
+version: 0.2
+env:
+  variables:
+    TF_IN_AUTOMATION: "true"
+phases:
+  install:
+    commands:
+      - echo "Installing Terraform..."
+      - curl -fsSL https://releases.hashicorp.com/terraform/1.7.5/terraform_1.7.5_linux_amd64.zip -o /tmp/tf.zip
+      - unzip -o /tmp/tf.zip -d /usr/local/bin
+      - terraform -version
+  pre_build:
+    commands:
+      - echo "Prepare workspace"
+      - ls -la
+      - cd terraform
+      - |
+        echo "Init backend (S3) or local (disabled)"
+        if [ -n "$TF_BACKEND_BUCKET" ]; then
+          terraform init -input=false               -backend-config="bucket=$TF_BACKEND_BUCKET"               -backend-config="key=${TF_BACKEND_KEY:-tfstate/dev/terraform.tfstate}"               -backend-config="region=${TF_BACKEND_REGION:-ap-northeast-1}"               -backend-config="dynamodb_table=${TF_BACKEND_DYNAMODB_TABLE:-}"               -backend-config="encrypt=true"
+        else
+          terraform init -input=false -backend=false
+        fi
+  build:
+    commands:
+      - terraform fmt -check
+      - terraform validate
+      - |
+        echo "Create plan (prefer tfvars if present)"
+        if [ -f "../envs/dev.tfvars" ]; then
+          terraform plan -input=false -out=tfplan -var-file="../envs/dev.tfvars"
+        else
+          terraform plan -input=false -out=tfplan
+        fi
+  post_build:
+    commands:
+      - mkdir -p ../artifacts
+      - terraform show -json tfplan > ../artifacts/plan.json
+artifacts:
+  files:
+    - artifacts/**/*
+    - terraform/tfplan
