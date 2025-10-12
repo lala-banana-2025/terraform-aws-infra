@@ -10,7 +10,7 @@
 resource "aws_security_group" "bas_sg" {
   name        = "bas-sg"
   vpc_id      = aws_vpc.vpc.id
-  description = "Allow SSH and HTTP"  # SSHとHTTPを許可
+  description = "Allow SSH and HTTP" # SSHとHTTPを許可
 
   # SSH (22) 許可
   ingress {
@@ -44,12 +44,12 @@ resource "aws_security_group" "bas_sg" {
 # 2. Bas 2EC2 インスタンス
 # -------------------------------
 resource "aws_instance" "basec2" {
-  ami                    = "ami-0d4aa492f133a3068"  # Amazon Linux 2023 (東京)
-  instance_type          = "t2.micro"               # 無料枠でOK
-  subnet_id              = aws_subnet.subnet_pub_1a.id
-  vpc_security_group_ids = [aws_security_group.bas_sg.id]
-  key_name               = "infra-lala"#AWSコンソール上で作成済み
-  associate_public_ip_address = true  # 自動でパブリックIPを割り当て
+  ami                         = "ami-0d4aa492f133a3068" # Amazon Linux 2023 (東京)
+  instance_type               = "t2.micro"              # 無料枠でOK
+  subnet_id                   = aws_subnet.subnet_pub_1a.id
+  vpc_security_group_ids      = [aws_security_group.bas_sg.id]
+  key_name                    = "infra-lala" #AWSコンソール上で作成済み
+  associate_public_ip_address = true         # 自動でパブリックIPを割り当て
 
   tags = { Name = "test-lala-ec2-bas-tf" }
 }

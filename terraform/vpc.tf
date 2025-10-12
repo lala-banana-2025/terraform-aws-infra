@@ -15,7 +15,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "ap-northeast-1"  # 東京リージョン
+  region = "ap-northeast-1" # 東京リージョン
 }
 
 # -------------------------------
@@ -32,9 +32,9 @@ resource "aws_vpc" "vpc" {
 # 3. パブリックサブネット (自動でパブリックIPを割り当て)
 # -------------------------------
 resource "aws_subnet" "subnet_pub_1a" {
-  vpc_id                  = aws_vpc.vpc.id
-  cidr_block              = "10.10.10.0/24"
-  availability_zone       = "ap-northeast-1a"
+  vpc_id            = aws_vpc.vpc.id
+  cidr_block        = "10.10.10.0/24"
+  availability_zone = "ap-northeast-1a"
 
   tags = {
     Name = "test-lala-pub1a-tf"
